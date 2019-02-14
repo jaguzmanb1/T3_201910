@@ -31,6 +31,10 @@ public class Controller {
 	 * Pila donde se van a cargar los datos de los archivos
 	 */
 	private Stack<VOMovingViolations> movingViolationsStack;
+	/**
+	 * Cola con los datos de febrero
+	 */
+	private Stack<VOMovingViolations> stackFebrero;
 
 
 	public Controller() {
@@ -39,6 +43,7 @@ public class Controller {
 		//TODO, inicializar la pila y la cola
 		movingViolationsQueue = null;
 		movingViolationsStack = null;
+		stackFebrero=null;
 	}
 
 	public void run() {
@@ -82,32 +87,34 @@ public class Controller {
 
 	public void loadMovingViolations() {
 		try{
-			FileReader n1 = new FileReader("./data/Moving_Violations_Issued_In_February_2018_ordered.csv");
+			FileReader n1 = new FileReader("./data/Moving_Violations_Issued_In_January_2018_ordered.csv");
 			CSVReader n2 = new CSVReaderBuilder(n1).withSkipLines(1).build();
-
+			
 			List <String[]> info = n2.readAll();
-
+			
 			movingViolationsStack = new Stack<VOMovingViolations>();
-
-			for( int i = 1 ; i < info.size() ; i++ ){
+			
+			for(int i=0;i<info.size();i++){
 				movingViolationsStack.push(new VOMovingViolations(Integer.parseInt(info.get(i)[0]), info.get(i)[2], info.get(i)[13],Integer.parseInt(info.get(i)[9]), info.get(i)[12], info.get(i)[15]));
 			}
-
-			FileReader n3= new FileReader("./data/Moving_Violations_Issued_In_January_2018_ordered.csv");
+			
+			FileReader n3= new FileReader("./data/Moving_Violations_Issued_In_February_2018_ordered.csv");
 			CSVReader n4 = new CSVReaderBuilder(n3).build();
 			List <String[]> info2 = n4.readAll();
 			movingViolationsQueue = new Queue<VOMovingViolations>();
+			stackFebrero= new Stack<VOMovingViolations>();
+			for(int i=0;i<info2.size();i++){
+				movingViolationsQueue.enqueue(new VOMovingViolations(Integer.parseInt(info.get(i)[0]), info.get(i)[2], info.get(i)[13],Integer.parseInt(info.get(i)[9]), info.get(i)[12], info.get(i)[15]));
+				stackFebrero.push(new VOMovingViolations(Integer.parseInt(info.get(i)[0]), info.get(i)[2], info.get(i)[13],Integer.parseInt(info.get(i)[9]), info.get(i)[12], info.get(i)[15]));
 
-			for ( int i = 1 ; i<info.size() ; i++ ){
-				movingViolationsQueue.enqueue(new VOMovingViolations(Integer.parseInt(info2.get(i)[0]), info2.get(i)[2], info2.get(i)[13],Integer.parseInt(info2.get(i)[9]), info2.get(i)[12], info2.get(i)[15]));
 			}
-
-
+			
 			n1.close();
 			n2.close();
 			n3.close();
 			n4.close();
 		}
+		
 		catch(Exception e){
 			view.printMensage(e.getMessage());
 		}
@@ -158,7 +165,12 @@ public class Controller {
 	}
 
 	public IStack <VOMovingViolations> nLastAccidents(int n) {
-		// TODO
-		return null;
+		Stack<VOMovingViolations> polloFrito = new Stack<>();Stack<VOMovingViolations> aiuda = polloFrito;
+		for(int i=0;i<n;i++){	
+			polloFrito.push(stackFebrero.pop());
+		}
+		loadMovingViolations();
+		
+		return polloFrito;
 	}
 }
